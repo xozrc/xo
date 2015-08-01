@@ -2,10 +2,9 @@ package rest
 
 import (
 	"encoding/json"
-	"fmt"
+	"github.com/codegangsta/inject"
 	"github.com/go-martini/martini"
 	"net/http"
-	"reflect"
 	"strconv"
 )
 
@@ -19,7 +18,9 @@ func (re *RestError) Error() string {
 	return "rest error code[" + strconv.FormatInt(int64(re.ErrorCode), 10) + "]" + ",error desc[" + re.ErrorDesc + "]"
 }
 
-type RestResult interface{}
+type RestResult interface {
+	Result() string
+}
 
 type RestReturnObj struct {
 	ErrorCode int32      `json:"errorCode"`
@@ -30,10 +31,9 @@ func RestPostHandler() martini.Handler {
 	return func(c martini.Context, rw http.ResponseWriter, req *http.Request) {
 
 		defer func(c martini.Context, rw http.ResponseWriter, req *http.Request) {
-			restErrorVal := c.Get(reflect.TypeOf((*RestError)(nil)))
-			restResultVal := c.Get(reflect.TypeOf((*RestResult)(nil))) //c.Get(reflect.TypeOf((*RestResult)(nil)))
-			fmt.Println(restErrorVal)
-			fmt.Println(restResultVal)
+			restErrorVal := c.Get(inject.InterfaceOf((*error)(nil)))
+			restResultVal := c.Get(inject.InterfaceOf((*RestResult)(nil)))
+
 			//no rest func
 			if !restErrorVal.IsValid() && !restResultVal.IsValid() {
 
@@ -47,7 +47,7 @@ func RestPostHandler() martini.Handler {
 				restErrorObj := restErrorVal.Interface().(*RestError)
 				restReturnObj.ErrorCode = restErrorObj.ErrorCode
 			} else {
-				fmt.Println("asd")
+
 				restResultObj := restResultVal.Interface().(RestResult)
 				restReturnObj.ErrorCode = 0
 				restReturnObj.Result = restResultObj

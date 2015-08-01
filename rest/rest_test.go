@@ -1,10 +1,9 @@
 package rest_test
 
 import (
+	"encoding/json"
 	"github.com/go-martini/martini"
 	"github.com/xo/rest"
-
-	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -40,7 +39,7 @@ func TestRestErrorResult(t *testing.T) {
 	m.Use(func(c martini.Context, res http.ResponseWriter, req *http.Request) {
 
 		err := &rest.RestError{-1000, "12"}
-		c.Map(err)
+		c.MapTo(err, (*error)(nil))
 	})
 
 	m.ServeHTTP(recorder, (*http.Request)(nil))
@@ -69,8 +68,17 @@ func TestRestErrorResult(t *testing.T) {
 
 }
 
+type RestReturnObj struct {
+	ErrorCode int32           `json:"errorCode"`
+	Result    RestLoginResult `json:"result"`
+}
+
 type RestLoginResult struct {
 	UserId int64 `json:"userId"`
+}
+
+func (r *RestLoginResult) Result() string {
+	return "RestLoginResult"
 }
 
 func TestRestResult(t *testing.T) {
@@ -92,7 +100,7 @@ func TestRestResult(t *testing.T) {
 		return
 	}
 
-	var returnObj rest.RestReturnObj
+	var returnObj RestReturnObj
 
 	if err := json.Unmarshal(recorder.Body.Bytes(), &returnObj); err != nil {
 		t.Error("json decode failed:" + err.Error())
@@ -103,8 +111,9 @@ func TestRestResult(t *testing.T) {
 		t.Error("error code failed")
 		return
 	}
-	result := returnObj.Result
-	loginResult := result.(RestLoginResult)
+
+	loginResult := returnObj.Result
+
 	if loginResult.UserId != 10001 {
 		t.Error("result failed")
 		return
