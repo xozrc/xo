@@ -23,8 +23,8 @@ type RestResult interface {
 }
 
 type RestReturnObj struct {
-	ErrorCode int32      `json:"errorCode"`
-	Result    RestResult `json:"result"`
+	ErrorCode int32       `json:"errorCode"`
+	Result    interface{} `json:"result"`
 }
 
 func RestPostHandler() martini.Handler {
