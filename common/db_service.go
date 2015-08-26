@@ -29,7 +29,7 @@ func NewMysqlConf(m json.RawMessage) (conf *MysqlConfig, err error) {
 }
 
 func EngineForCfg(cfg *MysqlConfig) (engine *xorm.Engine, err error) {
-	dataSourceName := fmt.Sprintf("%s:%s@/%s?", cfg.Username, cfg.Password, cfg.DbName)
+	dataSourceName := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8", cfg.Username, cfg.Password, cfg.Host, cfg.Port, cfg.DbName)
 	engine, err1 := xorm.NewEngine("mysql", dataSourceName)
 	if err1 != nil {
 		err = err1
@@ -64,7 +64,8 @@ type DBService struct {
 
 func (db *DBService) Init() {
 	engine, err := EngineForCfg(db.DBCfg)
-	dataSourceName := fmt.Sprintf("%s:%s@/%s?", db.DBCfg.Username, db.DBCfg.Password, db.DBCfg.DbName)
+
+	dataSourceName := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8", db.DBCfg.Username, db.DBCfg.Password, db.DBCfg.Host, db.DBCfg.Port, db.DBCfg.DbName)
 
 	if err != nil {
 		panic(fmt.Sprintf("connect %s failed,reason:%s", dataSourceName, err.Error()))

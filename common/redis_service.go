@@ -22,13 +22,14 @@ func NewRedisConf(m json.RawMessage) (conf *RedisConfig, err error) {
 }
 
 func RedisPoolForCfg(cfg *RedisConfig) (pool *redis.Pool, err error) {
-	dataSourceName := fmt.Sprintf("%s:%s", cfg.Host, cfg.Port)
+	dataSourceName := fmt.Sprintf("%s:%d", cfg.Host, cfg.Port)
 	//connect
 	pool = &redis.Pool{
 		MaxIdle:     int(cfg.MaxIdle),
 		IdleTimeout: 240 * time.Second,
 
 		Dial: func() (redis.Conn, error) {
+			fmt.Println("redis connect " + dataSourceName)
 			c, err := redis.Dial("tcp", dataSourceName)
 			if err != nil {
 				panic(err.Error())
@@ -63,7 +64,7 @@ type RedisService struct {
 
 func (r *RedisService) Init() {
 	pool, err := RedisPoolForCfg(r.RedisCfg)
-	dataSourceName := fmt.Sprintf("%s:%s", r.RedisCfg.Host, r.RedisCfg.Port)
+	dataSourceName := fmt.Sprintf("%s:%d", r.RedisCfg.Host, r.RedisCfg.Port)
 	if err != nil {
 		panic("init redis service failed:" + err.Error())
 	}

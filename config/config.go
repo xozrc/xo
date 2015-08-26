@@ -26,8 +26,8 @@ func NewStoreConf(path string) (conf *StoreConfig, err error) {
 		err = err2
 		return
 	}
-	conf = &StoreConfig{}
 
+	conf = &StoreConfig{}
 	err = json.Unmarshal(content, conf)
 
 	return
