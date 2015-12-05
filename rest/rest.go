@@ -36,7 +36,6 @@ func RestPostHandler() martini.Handler {
 
 			//no rest func
 			if !restErrorVal.IsValid() && !restResultVal.IsValid() {
-
 				return
 			}
 
