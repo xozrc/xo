@@ -51,7 +51,7 @@ func RestPostHandler() martini.Handler {
 				restReturnObj.ErrorCode = 0
 				restReturnObj.Result = restResultObj
 			}
-
+			rw.Header().Set("Access-Control-Allow-Origin", "*")
 			rw.Header().Set("Content-Type", "application/json; charset=utf-8")
 			content, err := json.Marshal(restReturnObj)
 
